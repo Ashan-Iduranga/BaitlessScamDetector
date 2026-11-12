@@ -1,0 +1,22 @@
+{
+  "name": "baitless",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start -w @baitless/mobile",
+    "android": "npm run android -w @baitless/mobile",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "data:check": "node data/validate.mjs"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

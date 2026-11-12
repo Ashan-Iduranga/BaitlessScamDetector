@@ -1,0 +1,109 @@
+/*
+ * Baitless design tokens. See docs/design-system.md for the rules.
+ * Sources: design-library "material-3" (roles, shape) + "quiet-product" (one accent,
+ * borders over shadows) + ui-ux-pro-max trust/security recommendation.
+ * Components must use these tokens, never raw hex values.
+ */
+@import 'tailwindcss';
+@import 'uniwind';
+
+@source '../../../packages';
+
+@layer theme {
+  :root {
+    @variant light {
+      /* Surfaces */
+      --color-background: #f4f6f5;
+      --color-surface: #ffffff;
+      --color-surface-container: #eaefec;
+      --color-surface-container-high: #e0e7e3;
+      --color-foreground: #17262b;
+      --color-muted: #4d5e62;
+      --color-outline: #6b7b7f;
+      --color-outline-variant: #d3dbd7;
+
+      /* The one interaction colour */
+      --color-primary: #2f4bd8;
+      --color-on-primary: #ffffff;
+      --color-primary-container: #e3e8fd;
+      --color-on-primary-container: #142680;
+
+      /* Risk levels: always paired with an icon + text label */
+      --color-safe: #1f7a5c;
+      --color-on-safe: #ffffff;
+      --color-safe-container: #ddf1e8;
+      --color-on-safe-container: #0b3d2c;
+
+      --color-caution: #8a5300;
+      --color-on-caution: #ffffff;
+      --color-caution-container: #fcebc9;
+      --color-on-caution-container: #4a2c00;
+
+      --color-danger: #b3261e;
+      --color-on-danger: #ffffff;
+      --color-danger-container: #f9dedc;
+      --color-on-danger-container: #410e0b;
+    }
+
+    @variant dark {
+      --color-background: #0f1517;
+      --color-surface: #172023;
+      --color-surface-container: #1f2a2e;
+      --color-surface-container-high: #283539;
+      --color-foreground: #e3eae7;
+      --color-muted: #a9b6b3;
+      --color-outline: #8a9895;
+      --color-outline-variant: #2e3b3f;
+
+      --color-primary: #a9b8ff;
+      --color-on-primary: #0e1d6b;
+      --color-primary-container: #2338a8;
+      --color-on-primary-container: #e3e8fd;
+
+      --color-safe: #7fd3ae;
+      --color-on-safe: #00382a;
+      --color-safe-container: #0f3b2c;
+      --color-on-safe-container: #cdefe0;
+
+      --color-caution: #f2c46b;
+      --color-on-caution: #422800;
+      --color-caution-container: #4a3100;
+      --color-on-caution-container: #fcebc9;
+
+      --color-danger: #f2b8b5;
+      --color-on-danger: #601410;
+      --color-danger-container: #8c1d18;
+      --color-on-danger-container: #f9dedc;
+    }
+  }
+}
+
+@theme {
+  /* One family per script (React Native has no font fallback chains). */
+  --font-latin: 'NotoSans_400Regular';
+  --font-latin-medium: 'NotoSans_500Medium';
+  --font-latin-semibold: 'NotoSans_600SemiBold';
+  --font-sinhala: 'NotoSansSinhala_400Regular';
+  --font-sinhala-semibold: 'NotoSansSinhala_600SemiBold';
+  --font-tamil: 'NotoSansTamil_400Regular';
+  --font-tamil-semibold: 'NotoSansTamil_600SemiBold';
+
+  /* Type scale: body is 17px for older readers. */
+  --text-label: 14px;
+  --text-label--line-height: 20px;
+  --text-body: 17px;
+  --text-body--line-height: 26px;
+  --text-title: 20px;
+  --text-title--line-height: 28px;
+  --text-headline: 26px;
+  --text-headline--line-height: 34px;
+  --text-display: 44px;
+  --text-display--line-height: 52px;
+
+  /* Material 3 shape tokens */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 28px;
+}

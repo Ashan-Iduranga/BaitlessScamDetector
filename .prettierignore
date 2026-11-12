@@ -1,0 +1,9 @@
+node_modules
+package-lock.json
+apps/mobile/android
+apps/mobile/ios
+apps/mobile/.expo
+*.docx
+apps/mobile/src/uniwind-types.d.ts
+.claude
+apps/mobile/expo-env.d.ts
