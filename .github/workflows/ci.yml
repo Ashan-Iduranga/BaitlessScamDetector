@@ -20,3 +20,5 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run data:check
+      - run: npm run sync:check
+      - run: npm run eval

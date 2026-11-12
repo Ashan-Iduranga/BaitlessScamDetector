@@ -14,7 +14,10 @@
     "test": "npm run test --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "data:check": "node data/validate.mjs"
+    "data:check": "node data/validate.mjs",
+    "eval": "npm run eval -w @baitless/detector --",
+    "sync:shared": "node scripts/sync-shared.mjs",
+    "sync:check": "node scripts/sync-shared.mjs --check"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

@@ -31,7 +31,24 @@
         }
       ],
       "expo-font",
-      "./plugins/with-windows-cmake"
+      "./plugins/with-windows-cmake",
+      "expo-sqlite",
+      "expo-localization",
+      [
+        "expo-share-intent",
+        {
+          "androidIntentFilters": ["text/*", "image/*"],
+          "disableIOS": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Baitless reads screenshots you choose so it can check them for scams.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

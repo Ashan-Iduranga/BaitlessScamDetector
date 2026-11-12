@@ -1,4 +1,5 @@
 import '@/global.css';
+import '@/lib/i18n';
 
 import {
   NotoSans_400Regular,
@@ -13,15 +14,26 @@ import {
   NotoSansTamil_400Regular,
   NotoSansTamil_600SemiBold,
 } from '@expo-google-fonts/noto-sans-tamil';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import { ShareIntentProvider } from 'expo-share-intent';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useCSSVariable } from 'uniwind';
+
+import { migrate } from '@/lib/db';
 
 SplashScreen.preventAutoHideAsync();
+migrate();
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+});
 
 export default function RootLayout() {
+  const router = useRouter();
   const [loaded, error] = useFonts({
     NotoSans_400Regular,
     NotoSans_500Medium,
@@ -31,6 +43,9 @@ export default function RootLayout() {
     NotoSansTamil_400Regular,
     NotoSansTamil_600SemiBold,
   });
+  const [background, foreground] = useCSSVariable(['--color-background', '--color-foreground']) as (
+    string | undefined
+  )[];
 
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
@@ -39,9 +54,23 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }} />
-    </>
+    <QueryClientProvider client={queryClient}>
+      <ShareIntentProvider
+        options={{ resetOnBackground: true, onResetShareIntent: () => router.replace('/') }}>
+        <StatusBar style="auto" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: background },
+            headerStyle: { backgroundColor: background },
+            headerTintColor: foreground,
+            headerTitleStyle: { fontFamily: 'NotoSans_600SemiBold' },
+            headerShadowVisible: false,
+          }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="result/[id]" options={{ headerShown: true, title: '' }} />
+        </Stack>
+      </ShareIntentProvider>
+    </QueryClientProvider>
   );
 }
