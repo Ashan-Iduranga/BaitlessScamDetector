@@ -43,6 +43,13 @@ const en = {
     serverBusy: 'Our online check is busy, so only the checks on your phone were used.',
     noFlags: 'We did not find any common scam signs.',
     checkAnother: 'Check another message',
+    reportButton: 'Report this scam',
+    reported: 'You reported this. Thank you for warning others.',
+    evidence: {
+      community:
+        'People in the Baitless community reported a link or number in this message as a scam',
+      safeBrowsing: 'Google Safe Browsing lists a link in this message as dangerous',
+    },
     notFound: 'This result is no longer saved.',
     sources: 'Checked with: {{list}}',
     sourceNames: {
@@ -71,6 +78,34 @@ const en = {
       other: 'Possible scam',
       none: '',
     },
+  },
+  report: {
+    title: 'Report this scam',
+    intro:
+      'Your report warns other people. When 3 different people report the same link or number, everyone who checks it is warned.',
+    shared: 'What will be added to the community list',
+    phoneHashed: 'Sent as a secret code, not as the number.',
+    confirmRule:
+      'Only links and numbers are shared. Your message and your details stay on this phone.',
+    nothingToShare:
+      'This message has no links or phone numbers to add to the community list. You can still report it to the authorities below.',
+    whatKind: 'What kind of scam is it?',
+    send: 'Send report',
+    thanks: 'Thank you. Your report was added to the community list.',
+    error: {
+      nothing_to_report: 'There is nothing in this message to report.',
+      rate_limited: 'You have sent many reports this hour. Please try again later.',
+      offline: 'You are offline. Connect to the internet and try again.',
+      failed: 'Something went wrong. Please try again.',
+    },
+    authorities: 'Tell the authorities',
+    lostMoney:
+      'If you shared an OTP or PIN, or lost money, call your bank now on the number printed on your card.',
+    certHelp:
+      'Sri Lanka CERT takes scam reports through its website. We copy a summary for you to paste into its form.',
+    openCert: 'Copy summary and open CERT form',
+    shareText: 'Share the summary',
+    callCert: 'Call Sri Lanka CERT ({{number}})',
   },
   reasons: {
     urgency: 'Pushes you to act fast',

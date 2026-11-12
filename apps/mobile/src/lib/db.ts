@@ -12,6 +12,8 @@ const MIGRATIONS: string[] = [
      report TEXT NOT NULL
    );
    CREATE INDEX IF NOT EXISTS scans_created_at ON scans (created_at DESC);`,
+  // Phase 2: when the user reported this scan to the community list.
+  `ALTER TABLE scans ADD COLUMN reported_at INTEGER;`,
 ];
 
 /** Runs pending migrations, tracked with SQLite's user_version. */

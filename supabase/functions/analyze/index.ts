@@ -1,7 +1,8 @@
 // analyze: server-side checks for one message.
 //
 // The app runs the on-device rules and masks personal details first, then sends:
-//   { text: <masked text>, urls: [...], language: 'en' | 'si' | 'ta' }
+//   { text: <masked text>, urls: [...], language: 'en' | 'si' | 'ta',
+//     lookup: { domains, urls, phoneHashes } }   (community lookups; phones as SHA-256 of E.164)
 // and gets back:
 //   { ai: AiResult | null, unsafeUrls: string[], communityHits: string[], warnings: string[] }
 // The app merges this with its own rule result (packages/detector buildReport).
@@ -26,6 +27,16 @@ const Body = z.object({
   text: z.string().min(1).max(5000),
   urls: z.array(z.string().max(2048)).max(10).default([]),
   language: Language.default('en'),
+  lookup: z
+    .object({
+      domains: z.array(z.string().max(253)).max(30).default([]),
+      urls: z.array(z.string().max(300)).max(10).default([]),
+      phoneHashes: z
+        .array(z.string().regex(/^[0-9a-f]{64}$/))
+        .max(10)
+        .default([]),
+    })
+    .default({ domains: [], urls: [], phoneHashes: [] }),
 });
 
 // auth: 'user' accepts only a signed-in user's JWT (anonymous sign-ins count). verify_jwt stays on.
@@ -40,15 +51,16 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return json(400, { error: 'bad_request' });
-  const { text, urls, language } = parsed.data;
+  const { text, urls, language, lookup } = parsed.data;
 
   const limited = await checkRateLimit(admin, userId);
   if (limited) return limited;
 
   const warnings: string[] = [];
-  const [unsafeUrls, ai] = await Promise.all([
+  const [unsafeUrls, ai, communityHits] = await Promise.all([
     checkSafeBrowsing(urls, warnings),
     askGemini(text, language, warnings),
+    checkCommunity(admin, lookup, warnings),
   ]);
 
   await admin.from('analyze_requests').insert({
@@ -60,11 +72,38 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
     latency_ms: Date.now() - started,
   });
 
-  // Community lookups arrive in Phase 2.
-  return json(200, { ai, unsafeUrls, communityHits: [], warnings });
+  return json(200, { ai, unsafeUrls, communityHits, warnings });
 });
 
 export default { fetch: handler };
+
+type Lookup = z.infer<typeof Body>['lookup'];
+type RpcClient = {
+  rpc: (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => PromiseLike<{ data: unknown; error: unknown }>;
+};
+
+/** Confirmed community reports (3+ people) among the message's domains, links and phone hashes. */
+async function checkCommunity(
+  admin: RpcClient,
+  lookup: Lookup,
+  warnings: string[],
+): Promise<string[]> {
+  if (!lookup.domains.length && !lookup.urls.length && !lookup.phoneHashes.length) return [];
+  const { data, error } = await admin.rpc('lookup_indicators', {
+    p_domains: lookup.domains,
+    p_urls: lookup.urls,
+    p_phone_hashes: lookup.phoneHashes,
+  });
+  if (error) {
+    console.error('community lookup failed', error);
+    warnings.push('community_unavailable');
+    return [];
+  }
+  return ((data ?? []) as { value: string }[]).map((row) => row.value);
+}
 
 async function checkSafeBrowsing(urls: string[], warnings: string[]): Promise<string[]> {
   if (!urls.length) return [];

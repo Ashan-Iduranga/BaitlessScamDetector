@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { WarningCircle, WifiSlash } from 'phosphor-react-native';
+import { CheckCircle, UsersThree, WarningCircle, WifiSlash } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -14,7 +14,7 @@ export default function ResultScreen() {
   const { t } = useTranslation();
   const { id, fallback } = useLocalSearchParams<{ id: string; fallback?: string }>();
   const { data: scan } = useScan(id);
-  const muted = useCSSVariable('--color-muted') as string | undefined;
+  const [muted, safe] = useCSSVariable(['--color-muted', '--color-safe']) as (string | undefined)[];
 
   if (!scan) {
     return (
@@ -29,6 +29,11 @@ export default function ResultScreen() {
   const reasons = [...new Set(report.flags.map((f) => f.ruleId))].filter(
     (id) => !(report.level === 'safe' && id === 'brand_mention'),
   );
+  // Hard evidence from outside the phone comes first.
+  const evidence = [
+    report.sources.community ? t('result.evidence.community') : null,
+    report.sources.safeBrowsing ? t('result.evidence.safeBrowsing') : null,
+  ].filter((e): e is string => e !== null);
   const sources = (Object.keys(report.sources) as (keyof typeof report.sources)[])
     .filter((k) => report.sources[k])
     .map((k) => t(`result.sourceNames.${k}`))
@@ -53,8 +58,16 @@ export default function ResultScreen() {
 
       <Section title={t('result.why')}>
         {report.explanation ? <Text>{report.explanation}</Text> : null}
-        {reasons.length ? (
+        {evidence.length || reasons.length ? (
           <View className="gap-2">
+            {evidence.map((line) => (
+              <View key={line} className="flex-row gap-3">
+                <Text className="text-danger">•</Text>
+                <Text weight="semibold" className="flex-1">
+                  {line}
+                </Text>
+              </View>
+            ))}
             {reasons.map((id) => (
               <View key={id} className="flex-row gap-3">
                 <Text className="text-muted">•</Text>
@@ -77,6 +90,20 @@ export default function ResultScreen() {
           {t('result.sources', { list: sources })}
         </Text>
       </Section>
+
+      {scan.reportedAt ? (
+        <View className="flex-row items-start gap-3 rounded-md bg-safe-container p-4">
+          <CheckCircle size={22} color={safe} weight="fill" />
+          <Text className="flex-1 text-on-safe-container">{t('result.reported')}</Text>
+        </View>
+      ) : (
+        <Button
+          title={t('result.reportButton')}
+          icon={UsersThree}
+          variant="outlined"
+          onPress={() => router.push({ pathname: '/report/[id]', params: { id: scan.id } })}
+        />
+      )}
 
       <Button
         title={t('result.checkAnother')}

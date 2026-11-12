@@ -10,6 +10,7 @@ import {
 } from '@baitless/detector';
 import { z } from 'zod';
 
+import { lookupFor } from '@/features/community/indicators';
 import { ensureSession, supabase } from '@/lib/supabase';
 
 /**
@@ -53,11 +54,12 @@ export async function runScan(input: {
 }
 
 async function askServer(text: string, urls: string[], language: Language): Promise<ServerSignals> {
-  await ensureSession();
+  // Phone numbers are looked up by hash; the original text is needed to find them before masking.
+  const [lookup] = await Promise.all([lookupFor(text), ensureSession()]);
   // Personal details never leave the phone. Links stay, for the Safe Browsing check.
   const { masked } = maskPii(text);
   const { data, error } = await supabase.functions.invoke('analyze', {
-    body: { text: masked, urls: urls.slice(0, 10), language },
+    body: { text: masked, urls: urls.slice(0, 10), language, lookup },
   });
   if (error) throw error;
   const parsed = ServerResponse.parse(data);

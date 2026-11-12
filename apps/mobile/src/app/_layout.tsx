@@ -69,6 +69,7 @@ export default function RootLayout() {
           }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="result/[id]" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="report/[id]" options={{ headerShown: true, title: '' }} />
         </Stack>
       </ShareIntentProvider>
     </QueryClientProvider>
