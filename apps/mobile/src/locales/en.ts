@@ -149,9 +149,59 @@ const en = {
   },
   radar: {
     title: 'Scam Radar',
-    comingTitle: 'Coming soon',
-    comingBody:
-      'Scams that other people in Sri Lanka report will show up here, so you can spot them early.',
+    intro: 'Scams that people in Sri Lanka reported with Baitless.',
+    updated: 'Updated {{time}}',
+    emptyTitle: 'No reports yet',
+    emptyBody:
+      'When people report scam links and numbers, the trends show up here. You can report a scam from any check result.',
+    error: 'Could not load Scam Radar. Check your internet connection and try again.',
+    retry: 'Try again',
+    thisWeek: 'Reports this week',
+    confirmed: 'Confirmed scam links',
+    confirmedHint: 'Reported by 3 or more people',
+    change: {
+      up: '{{n}} more than last week',
+      down: '{{n}} fewer than last week',
+      same: 'Same as last week',
+    },
+    daily: {
+      title: 'Reports per day',
+      subtitle: 'Last 14 days. Tap a bar to see that day.',
+      readout: '{{date}} · reported: {{n}}',
+      highest: 'Highest: {{n}}',
+      bar: '{{date}}, reported: {{n}}',
+      today: 'Today',
+    },
+    types: {
+      title: 'Most reported scam types',
+      subtitle: 'Last 30 days',
+      row: '{{label}}, reported: {{n}}',
+    },
+    trending: {
+      title: 'Scam links spreading now',
+      subtitle: 'Confirmed by the community. Do not open these.',
+      confirmed: 'Confirmed scam',
+      new: 'New',
+      meta: 'Reported by {{n}} people · first seen {{date}}',
+      none: 'No confirmed scam links in the last 30 days.',
+    },
+    otherCategory: 'Other scams',
+    alerts: {
+      title: 'New scam alerts',
+      body: 'Get a notification when people confirm a new scam link. Baitless checks a few times a day.',
+      denied: 'Alerts need permission to show notifications. Turn it on again to allow it.',
+      blocked: 'Notifications are turned off for Baitless. Allow them in the app settings.',
+      openSettings: 'Open app settings',
+    },
+    footnote:
+      'These numbers come from reports by Baitless users. They are not official police or CERT figures. Phone numbers are never shown.',
+    notify: {
+      channel: 'Scam Radar',
+      title: 'New scam spreading in Sri Lanka',
+      bodyOne: 'People confirmed {{link}} as a scam. Do not open it. Tap to see Scam Radar.',
+      bodyMany:
+        '{{count}} new scam links were confirmed, including {{link}}. Do not open them. Tap to see Scam Radar.',
+    },
   },
   smsGuard: {
     title: 'SMS Guard',

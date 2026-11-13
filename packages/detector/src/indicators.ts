@@ -138,3 +138,9 @@ export function lookupIndicators(text: string): Indicators {
 
 export const hasIndicators = (i: Indicators) =>
   i.domains.length + i.urls.length + i.phones.length > 0;
+
+/**
+ * Makes a scam link safe to show: dots become "[.]", so it is not tappable and is not turned back
+ * into a link by the keyboard, share sheet or chat apps. Still readable for people.
+ */
+export const defang = (value: string): string => value.replace(/\./g, '[.]');

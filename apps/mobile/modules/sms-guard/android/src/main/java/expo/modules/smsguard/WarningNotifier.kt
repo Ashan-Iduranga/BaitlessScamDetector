@@ -13,12 +13,21 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
-/** Posts the "possible scam" notification. Tapping it opens the saved result in the app. */
+/**
+ * Posts Baitless warnings: SMS Guard ("possible scam SMS") and Scam Radar ("new scam spreading").
+ * Tapping one opens [url], a baitless:// deep link handled by Expo Router.
+ */
 internal object WarningNotifier {
-  private const val CHANNEL_ID = "sms_guard_warnings"
-
   /** Returns false when the user has not allowed notifications. */
-  fun show(context: Context, scanId: String, title: String, body: String, channelName: String): Boolean {
+  fun show(
+    context: Context,
+    key: String,
+    title: String,
+    body: String,
+    channelId: String,
+    channelName: String,
+    url: String,
+  ): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
       ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
       PackageManager.PERMISSION_GRANTED
@@ -27,22 +36,21 @@ internal object WarningNotifier {
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val channel = NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH)
+      val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
       context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
-    // Deep link handled by Expo Router: src/app/result/[id].tsx
-    val open = Intent(Intent.ACTION_VIEW, Uri.parse("baitless://result/$scanId"))
+    val open = Intent(Intent.ACTION_VIEW, Uri.parse(url))
       .setPackage(context.packageName)
       .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     val pending = PendingIntent.getActivity(
       context,
-      scanId.hashCode(),
+      key.hashCode(),
       open,
       PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+    val notification = NotificationCompat.Builder(context, channelId)
       .setSmallIcon(R.drawable.sms_guard_notification)
       .setContentTitle(title)
       .setContentText(body)
@@ -53,7 +61,7 @@ internal object WarningNotifier {
       .setAutoCancel(true)
       .build()
 
-    NotificationManagerCompat.from(context).notify(scanId.hashCode(), notification)
+    NotificationManagerCompat.from(context).notify(key.hashCode(), notification)
     return true
   }
 }

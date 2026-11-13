@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  defang,
   domainCandidates,
   hasIndicators,
   lookupIndicators,
@@ -63,5 +64,12 @@ describe('lookupIndicators', () => {
   it('adds parent domains for lookups', () => {
     const i = lookupIndicators('Go to https://login.boc-verify.top/');
     expect(i.domains).toEqual(['login.boc-verify.top', 'boc-verify.top']);
+  });
+});
+
+describe('defang', () => {
+  it('breaks every dot so the link cannot be opened', () => {
+    expect(defang('boc-verify.top')).toBe('boc-verify[.]top');
+    expect(defang('bit.ly/a.b')).toBe('bit[.]ly/a[.]b');
   });
 });
