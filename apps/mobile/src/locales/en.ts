@@ -41,6 +41,7 @@ const en = {
     yourMessage: 'Your message',
     offline: 'You are offline, so only the checks on your phone were used.',
     serverBusy: 'Our online check is busy, so only the checks on your phone were used.',
+    smsGuard: 'SMS Guard checked this message on your phone only. It was not sent online.',
     noFlags: 'We did not find any common scam signs.',
     checkAnother: 'Check another message',
     reportButton: 'Report this scam',
@@ -144,12 +145,31 @@ const en = {
     clearBody: 'This removes every saved check from this phone. It cannot be undone.',
     cancel: 'Cancel',
     confirmDelete: 'Delete',
+    fromSmsGuard: 'Found by SMS Guard',
   },
   radar: {
     title: 'Scam Radar',
     comingTitle: 'Coming soon',
     comingBody:
       'Scams that other people in Sri Lanka report will show up here, so you can spot them early.',
+  },
+  smsGuard: {
+    title: 'SMS Guard',
+    switch: 'Check new SMS for scams',
+    body: 'When an SMS arrives, Baitless checks it and warns you with a notification if it looks like a scam.',
+    privacy:
+      'SMS are checked on this phone only and are never sent to our server. Only risky ones are saved in your history. Baitless cannot read your older messages.',
+    denied:
+      'SMS Guard needs permission to receive SMS and to show notifications. Turn it on again to allow them.',
+    blocked:
+      'Permission is turned off for Baitless. Allow SMS and Notifications in the app settings, then come back.',
+    openSettings: 'Open app settings',
+    notify: {
+      channel: 'Scam warnings',
+      title: { danger: 'Likely scam SMS', caution: 'Suspicious SMS', safe: 'SMS checked' },
+      body: 'From {{sender}}. Do not tap its links, call back or share any code. Tap to see why.',
+      unknownSender: 'an unknown sender',
+    },
   },
   settings: {
     title: 'Settings',

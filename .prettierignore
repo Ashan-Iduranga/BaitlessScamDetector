@@ -7,3 +7,6 @@ apps/mobile/.expo
 apps/mobile/src/uniwind-types.d.ts
 .claude
 apps/mobile/expo-env.d.ts
+
+# Gradle output of local Expo modules
+apps/mobile/modules/*/android/build/

@@ -1,5 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle, UsersThree, WarningCircle, WifiSlash } from 'phosphor-react-native';
+import {
+  CheckCircle,
+  ShieldCheck,
+  UsersThree,
+  WarningCircle,
+  WifiSlash,
+} from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -45,13 +51,19 @@ export default function ResultScreen() {
 
       {report.offline ? (
         <View className="flex-row items-start gap-3 rounded-md bg-surface-container p-4">
-          {fallback === 'offline' ? (
+          {scan.inputType === 'sms' ? (
+            <ShieldCheck size={20} color={muted} />
+          ) : fallback === 'offline' ? (
             <WifiSlash size={20} color={muted} />
           ) : (
             <WarningCircle size={20} color={muted} />
           )}
           <Text variant="label" weight="regular" className="flex-1 text-muted">
-            {fallback === 'offline' ? t('result.offline') : t('result.serverBusy')}
+            {scan.inputType === 'sms'
+              ? t('result.smsGuard')
+              : fallback === 'offline'
+                ? t('result.offline')
+                : t('result.serverBusy')}
           </Text>
         </View>
       ) : null}

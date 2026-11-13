@@ -73,7 +73,7 @@ function HistoryRow({ item, locale }: { item: ScanRecord; locale: string }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${label}. ${item.text.slice(0, 80)}. ${date}`}
+      accessibilityLabel={`${label}. ${item.text.slice(0, 80)}. ${date}${item.inputType === 'sms' ? `. ${t('history.fromSmsGuard')}` : ''}`}
       onPress={() => router.push({ pathname: '/result/[id]', params: { id: item.id } })}
       className="flex-row gap-3 rounded-md border border-outline-variant bg-surface p-4 active:opacity-80">
       <style.icon size={28} color={color} weight="fill" />
@@ -89,6 +89,11 @@ function HistoryRow({ item, locale }: { item: ScanRecord; locale: string }) {
         <Text numberOfLines={2} className="text-muted">
           {item.text}
         </Text>
+        {item.inputType === 'sms' ? (
+          <Text variant="label" weight="regular" className="text-muted">
+            {t('history.fromSmsGuard')}
+          </Text>
+        ) : null}
       </View>
     </Pressable>
   );

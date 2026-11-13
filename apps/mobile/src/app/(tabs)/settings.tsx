@@ -1,18 +1,23 @@
-import { LockSimple, Trash } from 'phosphor-react-native';
+import { GearSix, LockSimple, ShieldCheck, Trash } from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, View } from 'react-native';
+import { Alert, Linking, Pressable, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { SwitchRow } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { useClearHistory } from '@/features/history/hooks';
+import { useSmsGuard } from '@/features/sms-guard/use-sms-guard';
 import { LANGUAGES, setLanguage } from '@/lib/i18n';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const clear = useClearHistory();
-  const muted = useCSSVariable('--color-muted') as string | undefined;
+  const smsGuard = useSmsGuard();
+  const [muted, primary] = useCSSVariable(['--color-muted', '--color-primary']) as (
+    string | undefined
+  )[];
 
   function confirmClear() {
     Alert.alert(t('history.clearTitle'), t('history.clearBody'), [
@@ -55,6 +60,42 @@ export default function SettingsScreen() {
           {t('settings.languageHint')}
         </Text>
       </View>
+
+      {smsGuard.available ? (
+        <View className="gap-3 rounded-md border border-outline-variant bg-surface p-4">
+          <View className="flex-row items-center gap-2">
+            <ShieldCheck size={20} color={primary} />
+            <Text variant="label" className="text-muted">
+              {t('smsGuard.title')}
+            </Text>
+          </View>
+          <SwitchRow
+            label={t('smsGuard.switch')}
+            description={t('smsGuard.body')}
+            value={smsGuard.enabled}
+            disabled={smsGuard.busy}
+            onChange={(on) => void smsGuard.setEnabled(on)}
+          />
+          {smsGuard.denied ? (
+            <View accessibilityLiveRegion="polite" className="gap-3">
+              <Text className="text-danger">
+                {t(smsGuard.blocked ? 'smsGuard.blocked' : 'smsGuard.denied')}
+              </Text>
+              {smsGuard.blocked ? (
+                <Button
+                  title={t('smsGuard.openSettings')}
+                  icon={GearSix}
+                  variant="outlined"
+                  onPress={() => void Linking.openSettings()}
+                />
+              ) : null}
+            </View>
+          ) : null}
+          <Text variant="label" weight="regular" className="text-muted">
+            {t('smsGuard.privacy')}
+          </Text>
+        </View>
+      ) : null}
 
       <View className="gap-3 rounded-md border border-outline-variant bg-surface p-4">
         <View className="flex-row items-center gap-2">
