@@ -4,22 +4,25 @@ import { useCSSVariable } from 'uniwind';
 
 import { Text } from './text';
 
-type Variant = 'filled' | 'tonal' | 'outlined';
+type Variant = 'filled' | 'tonal' | 'outlined' | 'text';
 
 const container: Record<Variant, string> = {
   filled: 'bg-primary',
   tonal: 'bg-primary-container',
   outlined: 'border border-outline bg-surface',
+  text: 'bg-transparent',
 };
 const label: Record<Variant, string> = {
   filled: 'text-on-primary',
   tonal: 'text-on-primary-container',
   outlined: 'text-primary',
+  text: 'text-primary',
 };
 const iconColorVar: Record<Variant, string> = {
   filled: '--color-on-primary',
   tonal: '--color-on-primary-container',
   outlined: '--color-primary',
+  text: '--color-primary',
 };
 
 type Props = {
@@ -33,7 +36,7 @@ type Props = {
   className?: string;
 };
 
-/** Material 3 button: filled (one per screen), tonal or outlined. Min 48dp touch target. */
+/** Material 3 button: filled (one per screen), tonal, outlined or text. Min 48dp touch target. */
 export function Button({
   title,
   onPress,
@@ -52,7 +55,7 @@ export function Button({
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
-      className={`${size === 'large' ? 'h-14' : 'h-12'} flex-row items-center justify-center gap-2 rounded-full px-6 active:opacity-80 ${container[variant]} ${inactive ? 'opacity-50' : ''} ${className}`}>
+      className={`${size === 'large' ? 'h-14' : 'h-12'} flex-row items-center justify-center gap-2 rounded-full ${variant === 'text' ? 'px-3' : 'px-6'} active:opacity-80 ${container[variant]} ${inactive ? 'opacity-50' : ''} ${className}`}>
       {loading ? (
         <ActivityIndicator color={iconColor} />
       ) : IconCmp ? (

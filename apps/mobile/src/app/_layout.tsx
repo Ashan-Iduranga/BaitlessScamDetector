@@ -23,6 +23,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useCSSVariable } from 'uniwind';
 
+import { useFamilyLive } from '@/features/family/hooks';
 import { migrate } from '@/lib/db';
 import { queryClient } from '@/lib/query-client';
 
@@ -67,8 +68,18 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="result/[id]" options={{ headerShown: true, title: '' }} />
           <Stack.Screen name="report/[id]" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="family/index" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="family/share" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="family/join" options={{ headerShown: true, title: '' }} />
         </Stack>
+        <FamilyLive />
       </ShareIntentProvider>
     </QueryClientProvider>
   );
+}
+
+/** Instant Family Guardian alerts while the app is open (needs the query client). */
+function FamilyLive() {
+  useFamilyLive();
+  return null;
 }

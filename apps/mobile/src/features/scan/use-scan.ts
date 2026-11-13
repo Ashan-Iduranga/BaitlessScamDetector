@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
 import { router } from 'expo-router';
 
+import { sendGuardianAlert } from '@/features/family/api';
 import { saveScan } from '@/features/history/repo';
 import { historyKeys } from '@/features/history/hooks';
 import { currentLanguage } from '@/lib/i18n';
@@ -17,6 +18,8 @@ export function useScan() {
       const outcome = await runScan({ text, inputType, language: currentLanguage() });
       const id = randomUUID();
       saveScan({ id, createdAt: Date.now(), inputType, text: text.trim(), report: outcome.report });
+      // Family Guardian: summary only, never the message. Does not hold up the result screen.
+      void sendGuardianAlert(outcome.report, text, 'check');
       return { id, fallback: outcome.fallback };
     },
     onSuccess: ({ id, fallback }) => {

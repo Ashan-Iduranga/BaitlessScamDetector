@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import * as BackgroundTask from 'expo-background-task';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
 
 import { SmsGuard } from '@/features/sms-guard/native';
+import { allowNotifications } from '@/lib/notifications';
 
 import { radarAlertsOn, startRadarAlerts, stopRadarAlerts } from './alerts';
 import { fetchRadar, radarKeys } from './api';
@@ -24,16 +24,6 @@ export function useRadar() {
     }, [isStale, refetch]),
   );
   return query;
-}
-
-/** Android 13+ asks before showing notifications. */
-async function allowNotifications(): Promise<'granted' | 'denied' | 'blocked'> {
-  if (Platform.OS !== 'android' || Number(Platform.Version) < 33) return 'granted';
-  const result = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-  );
-  if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
-  return result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN ? 'blocked' : 'denied';
 }
 
 export type RadarAlertsState = {

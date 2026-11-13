@@ -221,7 +221,106 @@ const en = {
       unknownSender: 'an unknown sender',
     },
   },
+  family: {
+    title: 'Family Guardian',
+    intro:
+      "Look out for each other. When Baitless finds a likely scam on a family member's phone, the people looking after them are told.",
+    someone: 'Someone in your family',
+    otherScam: 'Possible scam',
+    retry: 'Try again',
+    alertsTitle: 'Alerts from your family',
+    alertsSubtitle: 'Likely scams found on their phones in the last 30 days.',
+    noAlerts: 'No likely scams in the last 30 days.',
+    source: { sms: 'In an SMS they received', check: 'In a message they checked' },
+    advice: 'Call {{name}} to check they did not reply, open the link or share a code.',
+    lookingAfterTitle: 'People you look after',
+    lookingAfterBody: 'You get an alert when Baitless finds a likely scam on their phone.',
+    join: 'Look after someone',
+    guardiansTitle: 'People looking after you',
+    guardiansBody: 'They get an alert when Baitless finds a likely scam on your phone.',
+    share: 'Let someone look out for me',
+    privacy:
+      'Guardians only see the risk level, the scam type, the time and the scam link. Never your messages, contacts or codes. Either of you can stop at any time.',
+    remove: {
+      button: 'Stop',
+      cancel: 'Cancel',
+      confirm: 'Stop',
+      guardian: {
+        title: 'Stop looking after {{name}}?',
+        body: 'You will no longer get alerts about {{name}}. They can give you a new code later.',
+      },
+      protected: {
+        title: 'Stop {{name}} looking after you?',
+        body: '{{name}} will no longer get alerts about scams on your phone.',
+      },
+    },
+    error: {
+      invite_not_found:
+        'That code does not work. Check it, or ask for a new one (codes last 24 hours).',
+      invite_own: 'This is your own code. Give it to the person who will look after you.',
+      too_many_guardians: 'You already have 5 people looking after you.',
+      too_many_invites:
+        'You already have 3 codes waiting. Use one of them, or wait until they expire.',
+      too_many_protected: 'You already look after 10 people.',
+      offline: 'You are offline. Connect to the internet and try again.',
+      failed: 'Something went wrong. Please try again.',
+    },
+    shareScreen: {
+      title: 'Let someone look out for you',
+      intro:
+        'Create a code and give it to someone you trust, like your son or daughter. When they enter it, they are told whenever Baitless finds a likely scam on this phone.',
+      theySee: 'What they will see',
+      see: {
+        level: 'How risky it is',
+        type: 'The kind of scam (for example, bank scam)',
+        when: 'When it happened, and whether it was an SMS',
+        link: 'The scam link, if there was one',
+      },
+      never: 'They never see your messages, contacts or codes.',
+      nameLabel: 'Your name for them',
+      nameHint: 'For example: Amma, Thaththa or Aunty Kumari',
+      create: 'Create code',
+      yourCode: 'Your code',
+      codeLabel: 'Your code: {{code}}',
+      validUntil: 'Works until {{time}}, once',
+      next: 'Send this code to them, or read it out on the phone. They enter it in Baitless under Settings > Family Guardian.',
+      shareCode: 'Send the code',
+      copy: 'Copy code',
+      copied: 'Copied',
+      message:
+        'Please look out for me on Baitless. Open Baitless > Settings > Family Guardian > Look after someone, and enter this code: {{code}}',
+      smsGuardTip:
+        'Tip: turn on SMS Guard in Settings, so scam SMS are checked and your guardians are told automatically.',
+    },
+    joinScreen: {
+      title: 'Look after someone',
+      intro:
+        'Enter the code they gave you. You will get an alert when Baitless finds a likely scam on their phone.',
+      codeLabel: 'Their code',
+      codeHint: '8 letters and numbers, for example KXBV-3MC5',
+      nameLabel: 'Your name',
+      nameHint: 'They will see this, for example: Kamal (son)',
+      submit: 'Start looking after them',
+      doneTitle: 'You now look after {{name}}',
+      doneBody:
+        'We will tell you when Baitless finds a likely scam on their phone. Baitless checks a few times a day, and straight away while the app is open.',
+      back: 'Done',
+    },
+    notify: {
+      channel: 'Family alerts',
+      title: '{{name}} may have got a scam',
+      body: {
+        sms: '{{type}} in an SMS to {{name}}. Call them to check they did not reply, open the link or share a code.',
+        check:
+          '{{name}} checked a message that is likely a {{type}}. Call them to check they are safe.',
+      },
+      titleMany: 'Scam alerts for your family',
+      bodyMany: "{{n}} new likely scams on your family's phones. Tap to see them.",
+    },
+  },
   settings: {
+    familyTitle: 'Family Guardian',
+    familyBody: 'Look out for family members, or let them look out for you.',
     title: 'Settings',
     language: 'Language',
     languageHint: 'Used for the app and for explanations.',

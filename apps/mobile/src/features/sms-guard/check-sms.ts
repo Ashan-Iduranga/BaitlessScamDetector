@@ -1,6 +1,7 @@
 import { analyzeText, buildReport } from '@baitless/detector';
 import { randomUUID } from 'expo-crypto';
 
+import { sendGuardianAlert } from '@/features/family/api';
 import { historyKeys } from '@/features/history/hooks';
 import { saveScan } from '@/features/history/repo';
 import { migrate } from '@/lib/db';
@@ -39,4 +40,7 @@ export async function checkIncomingSms({ sender, body, receivedAt }: IncomingSms
     t('smsGuard.notify.body', { sender: sender || t('smsGuard.notify.unknownSender') }),
     t('smsGuard.notify.channel'),
   );
+
+  // Family Guardian: tells this person's guardians (summary only, never the message).
+  await sendGuardianAlert(report, text, 'sms');
 }

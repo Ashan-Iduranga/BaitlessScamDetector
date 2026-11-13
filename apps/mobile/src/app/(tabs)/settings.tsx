@@ -1,4 +1,12 @@
-import { GearSix, LockSimple, ShieldCheck, Trash } from 'phosphor-react-native';
+import { router } from 'expo-router';
+import {
+  CaretRight,
+  GearSix,
+  LockSimple,
+  ShieldCheck,
+  Trash,
+  UsersThree,
+} from 'phosphor-react-native';
 import { useTranslation } from 'react-i18next';
 import { Alert, Linking, Pressable, View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
@@ -60,6 +68,19 @@ export default function SettingsScreen() {
           {t('settings.languageHint')}
         </Text>
       </View>
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityHint={t('settings.familyBody')}
+        onPress={() => router.push('/family')}
+        className="flex-row items-center gap-3 rounded-md border border-outline-variant bg-surface p-4 active:bg-surface-container-high">
+        <UsersThree size={24} color={primary} />
+        <View className="flex-1 gap-1">
+          <Text variant="title">{t('settings.familyTitle')}</Text>
+          <Text className="text-muted">{t('settings.familyBody')}</Text>
+        </View>
+        <CaretRight size={20} color={muted} />
+      </Pressable>
 
       {smsGuard.available ? (
         <View className="gap-3 rounded-md border border-outline-variant bg-surface p-4">
