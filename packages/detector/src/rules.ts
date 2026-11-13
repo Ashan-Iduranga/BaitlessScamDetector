@@ -116,8 +116,9 @@ export const TEXT_RULES: TextRule[] = [
     patterns: [
       /\b(part[- ]?time|work from home|online job|daily (income|earning|payment)|earn (up to )?(rs\.?|lkr|\$)\s?\d|no experience|like (videos|youtube|posts)|simple tasks?|task based)\b/i,
       /\b(gedara indan|gedara idan)\b.{0,20}\b(salli|income|job)\b/i,
-      /නිවසේ සිට|අර්ධ කාලීන|දිනකට රු/,
-      /வீட்டிலிருந்து|பகுதி நேர|தினமும் ரூ/,
+      // Real messages join or split words (අර්ධකාලීන, பகுதிநேர), so spaces are optional.
+      /නිවසේ සිට|ගෙදර සිට|අර්ධ\s?කාලීන|(දිනකට|දවසකට)\s?රු|like\s?කිරීම/i,
+      /வீட்டிலிருந்(து|தே)|பகுதி\s?நேர|(தினமும்|நாளொன்றுக்கு|ஒரு நாளைக்கு)\s?ரூ|லைக் செய்/,
     ],
   },
   {

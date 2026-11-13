@@ -71,6 +71,8 @@ export default function RootLayout() {
           <Stack.Screen name="family/index" options={{ headerShown: true, title: '' }} />
           <Stack.Screen name="family/share" options={{ headerShown: true, title: '' }} />
           <Stack.Screen name="family/join" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="academy/practice" options={{ headerShown: true, title: '' }} />
+          <Stack.Screen name="academy/quiz/[id]" options={{ headerShown: true, title: '' }} />
         </Stack>
         <FamilyLive />
       </ShareIntentProvider>

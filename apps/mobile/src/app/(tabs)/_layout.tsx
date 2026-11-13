@@ -3,6 +3,7 @@ import {
   ChartLineUp,
   ClockCounterClockwise,
   Gear,
+  GraduationCap,
   ShieldCheck,
   type Icon,
 } from 'phosphor-react-native';
@@ -61,6 +62,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="radar"
         options={{ title: t('tabs.radar'), tabBarIcon: tabIcon(ChartLineUp) }}
+      />
+      <Tabs.Screen
+        name="academy"
+        options={{ title: t('tabs.academy'), tabBarIcon: tabIcon(GraduationCap) }}
       />
       <Tabs.Screen
         name="settings"

@@ -162,3 +162,17 @@ describe('buildReport', () => {
     expect(report.sources.ai).toBe(true);
   });
 });
+
+describe('job offers in Sinhala and Tamil', () => {
+  const flagged = (text: string) => analyzeText(text).flags.some((f) => f.ruleId === 'job_offer');
+
+  it('finds part-time job offers whether or not the words are joined', () => {
+    expect(flagged('අර්ධකාලීන රැකියාවක්! නිවසේ සිට දිනකට රු. 15,000ක් උපයන්න')).toBe(true);
+    expect(flagged('பகுதிநேர வேலை! வீட்டிலிருந்தே நாளொன்றுக்கு ரூ. 15,000 சம்பாதியுங்கள்')).toBe(true);
+    expect(flagged('பகுதி நேர வேலை, தினமும் ரூ 5000')).toBe(true);
+  });
+
+  it('does not flag an ordinary message about home', () => {
+    expect(flagged('நான் வீட்டில் இருக்கிறேன், மாலை சந்திப்போம்')).toBe(false);
+  });
+});
