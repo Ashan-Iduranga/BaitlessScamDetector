@@ -14,7 +14,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { withSupabase } from '@supabase/server';
 import { z } from 'zod';
 
-import { checkRateLimit, geminiJson, json } from '../_shared/edge.ts';
+import { reserveRequest, geminiJson, json } from '../_shared/edge.ts';
 
 // Reading an image takes longer than a text check; shared by both models in the fallback chain.
 const TIMEOUT_MS = 12000;
@@ -61,8 +61,8 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
   const key = Deno.env.get('GEMINI_API_KEY');
   if (!key) return json(503, { error: 'ai_unavailable' });
 
-  const limited = await checkRateLimit(admin, userId);
-  if (limited) return limited;
+  const reserved = await reserveRequest(admin, userId, 'read_image');
+  if ('response' in reserved) return reserved.response;
 
   let text: string;
   try {
@@ -85,12 +85,10 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
     return json(502, { error: 'ai_failed' });
   }
 
-  await admin.from('analyze_requests').insert({
-    user_id: userId,
-    kind: 'read_image',
-    used_ai: true,
-    latency_ms: Date.now() - started,
-  });
+  await admin
+    .from('analyze_requests')
+    .update({ used_ai: true, latency_ms: Date.now() - started })
+    .eq('id', reserved.requestId);
 
   return json(200, { text });
 });

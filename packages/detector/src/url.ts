@@ -94,7 +94,7 @@ export const BRANDS: Record<string, string[]> = {
   sampath: ['sampath.lk', 'sampathbank.com'],
   commercialbank: ['combank.lk', 'combank.net'],
   combank: ['combank.lk', 'combank.net'],
-  hnb: ['hnb.lk', 'hnb.net'],
+  hnb: ['hnb.lk', 'hnb.net', 'hnbfinance.lk'],
   nsb: ['nsb.lk'],
   seylan: ['seylan.lk'],
   ndb: ['ndbbank.com'],
@@ -138,12 +138,36 @@ export function urlSignals(url: FoundUrl): UrlSignal[] {
   return signals;
 }
 
+/**
+ * True for a host that uses a brand name without being that brand's site ("boc-verify.top").
+ * Short names (3 letters: boc, hnb, ndb) only count at the start or end of a word, so unrelated
+ * words that happen to contain them ("johnbrown", "standby") are not flagged.
+ */
 export function isBrandLookalike(host: string): boolean {
-  const flat = host.replace(/[-.]/g, '');
-  for (const [brand, domains] of Object.entries(BRANDS)) {
-    if (!flat.includes(brand)) continue;
-    const official = domains.some((d) => host === d || host.endsWith(`.${d}`));
-    if (!official) return true;
+  if (isTrustedDomain(host)) return false;
+  const words = host.split(/[-.]/).filter(Boolean);
+  const flat = words.join('');
+  for (const brand of Object.keys(BRANDS)) {
+    const used =
+      brand.length <= 3
+        ? words.some((w) => w.startsWith(brand) || w.endsWith(brand))
+        : flat.includes(brand);
+    if (used) return true;
   }
   return false;
+}
+
+/** Official sites of the brands above, plus any *.gov.lk or *.ac.lk site. */
+export function isTrustedDomain(host: string): boolean {
+  if (
+    host === 'gov.lk' ||
+    host.endsWith('.gov.lk') ||
+    host === 'ac.lk' ||
+    host.endsWith('.ac.lk')
+  ) {
+    return true;
+  }
+  return Object.values(BRANDS).some((domains) =>
+    domains.some((d) => host === d || host.endsWith(`.${d}`)),
+  );
 }

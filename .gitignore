@@ -9,3 +9,6 @@ dist/
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# Local notes that may hold secrets
+docs/Keys.txt

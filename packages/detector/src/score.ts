@@ -31,6 +31,15 @@ function combine(weights: number[]): number {
 }
 
 /** Runs the on-device checks. Fast, offline, and never sends anything anywhere. */
+/** Rules that a genuine "do not share" message never triggers. */
+const STRONG_SIGNALS = new Set([
+  'credential_request',
+  'account_threat',
+  'money_request',
+  'fee_request',
+  'family_impersonation',
+]);
+
 export function analyzeText(text: string): RuleResult {
   const flags: RedFlag[] = [];
   const weights: number[] = [];
@@ -82,7 +91,14 @@ export function analyzeText(text: string): RuleResult {
   }
 
   let score = combine(weights);
+  // A real bank OTP says "do not share this code", but so can a scam that adds the line to look
+  // genuine. Only soften the score when the message does not also threaten, ask for codes or money,
+  // or carry a suspicious link.
+  const asksForAction = flags.some(
+    (f) => STRONG_SIGNALS.has(f.ruleId) || (f.ruleId.startsWith('url_') && f.ruleId !== 'url_any'),
+  );
   for (const d of DAMPENERS) {
+    if (asksForAction) continue;
     if (d.patterns.some((p) => p.test(text))) score *= d.factor;
   }
 

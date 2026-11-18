@@ -15,7 +15,11 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.baitless.app"
+      "package": "com.baitless.app",
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -32,6 +36,8 @@
       ],
       "expo-font",
       "./plugins/with-windows-cmake",
+      "./plugins/with-release-signing",
+      "./plugins/with-proguard-rules",
       "expo-sqlite",
       "expo-localization",
       [

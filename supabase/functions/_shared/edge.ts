@@ -1,7 +1,7 @@
 // Helpers shared by the Edge Functions. Hand-written (unlike schema.ts, which is generated).
 
-// Both functions use the same table and hourly budget.
-export const RATE_LIMIT_PER_HOUR = 30;
+// Both functions share the same table and hourly budget (30 per user, 600 overall). The limits
+// live in the reserve_ai_request database function.
 
 export const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), {
@@ -31,12 +31,23 @@ type AdminClient = {
   ) => PromiseLike<{ data: unknown; error: unknown }>;
 };
 
-/** Returns a response to send back if the user is over the limit or the check failed, else null. */
-export async function checkRateLimit(admin: AdminClient, userId: string): Promise<Response | null> {
-  const { data, error } = await admin.rpc('analyze_requests_last_hour', { p_user: userId });
-  if (error) return json(500, { error: 'rate_limit_check_failed' });
-  if (Number(data ?? 0) >= RATE_LIMIT_PER_HOUR) return json(429, { error: 'rate_limited' });
-  return null;
+/**
+ * Counts this request before any paid work starts, so parallel or failing calls still count.
+ * Returns the usage row id, or a response to send back (over the limit, or the check failed).
+ */
+export async function reserveRequest(
+  admin: AdminClient,
+  userId: string,
+  kind: 'analyze' | 'read_image',
+): Promise<{ requestId: number } | { response: Response }> {
+  const { data, error } = await admin.rpc('reserve_ai_request', { p_user: userId, p_kind: kind });
+  const row = (data as { request_id: number | null; outcome: string }[] | null)?.[0];
+  if (error || !row) return { response: json(500, { error: 'rate_limit_check_failed' }) };
+  if (row.outcome === 'user_limit') return { response: json(429, { error: 'rate_limited' }) };
+  if (row.outcome !== 'ok' || row.request_id === null) {
+    return { response: json(503, { error: 'busy' }) };
+  }
+  return { requestId: row.request_id };
 }
 
 // Tried in order. The free tier sometimes answers 503 "high demand" for one model while another
@@ -46,11 +57,16 @@ export const GEMINI_MODELS = PINNED_MODEL
   ? [PINNED_MODEL]
   : ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
 
-/** Errors worth trying the next model for: overload, rate limit, server error, our own timeout. */
+/**
+ * Errors worth trying the next model for: overload, rate limit, server error, our own timeout, and
+ * 400/404, which is what a retired or renamed model returns (the main reason to have a fallback).
+ */
 function isRetryable(e: unknown): boolean {
   if (e instanceof DOMException && e.name === 'AbortError') return true;
   const status = (e as { status?: number })?.status;
-  return status === 429 || (status !== undefined && status >= 500);
+  return (
+    status === 400 || status === 404 || status === 429 || (status !== undefined && status >= 500)
+  );
 }
 
 class GeminiHttpError extends Error {

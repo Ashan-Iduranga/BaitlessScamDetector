@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 import { allowNotifications } from '@/lib/notifications';
@@ -70,17 +70,28 @@ export function useRemoveLink() {
 /**
  * While the app is open, a guardian hears about new alerts straight away (Supabase Realtime only
  * delivers rows that RLS lets this user read). When it is closed, the background task catches up.
+ *
+ * The channel is rebuilt only when the people being looked after change, not on every refetch
+ * (each refetch returns a new array), and every channel gets its own name, so a channel still
+ * being removed cannot clash with the new one.
  */
 export function useFamilyLive(): void {
   const client = useQueryClient();
   const { data: family } = useFamily();
   const me = family?.me;
   const lookingAfter = family?.lookingAfter;
+  const watched = lookingAfter?.map((l) => l.protected_id).join(',') ?? '';
+  const linksRef = useRef(lookingAfter ?? []);
 
   useEffect(() => {
-    if (!me || !lookingAfter?.length) return;
+    linksRef.current = lookingAfter ?? [];
+  }, [lookingAfter]);
+
+  useEffect(() => {
+    if (!me || !watched) return;
+    channelCount += 1;
     const channel = supabase
-      .channel('guardian-alerts')
+      .channel(`guardian-alerts-${channelCount}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'guardian_alerts' },
@@ -88,7 +99,7 @@ export function useFamilyLive(): void {
           void fetchGuardianAlerts(me)
             .then((alerts) => {
               client.setQueryData(familyKeys.alerts, alerts);
-              notifyGuardian(alerts, lookingAfter);
+              notifyGuardian(alerts, linksRef.current);
             })
             .catch((e) => {
               if (__DEV__) console.warn('live family alert failed', e);
@@ -99,5 +110,7 @@ export function useFamilyLive(): void {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [client, me, lookingAfter]);
+  }, [client, me, watched]);
 }
+
+let channelCount = 0;

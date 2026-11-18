@@ -176,3 +176,34 @@ describe('job offers in Sinhala and Tamil', () => {
     expect(flagged('நான் வீட்டில் இருக்கிறேன், மாலை சந்திப்போம்')).toBe(false);
   });
 });
+
+describe('brand look-alike links', () => {
+  const lookalike = (url: string) => urlSignals(extractUrls(url)[0]!).includes('brand_lookalike');
+
+  it('flags fake brand sites', () => {
+    expect(lookalike('http://boc-verify.top/login')).toBe(true);
+    expect(lookalike('https://bocsecure.xyz')).toBe(true);
+    expect(lookalike('https://dialog-rewards.click')).toBe(true);
+  });
+
+  it('does not flag official sites or unrelated words', () => {
+    expect(lookalike('https://www.hnbfinance.lk')).toBe(false);
+    expect(lookalike('https://online.boc.lk')).toBe(false);
+    expect(lookalike('https://johnbrown.com')).toBe(false);
+    expect(lookalike('https://standbyme.com')).toBe(false);
+  });
+});
+
+describe('"do not share" in a scam', () => {
+  it('does not soften a scam that adds a safety line', () => {
+    const text =
+      'Your BOC account will be blocked within 24 hours. Send the OTP to 0771234567 to verify. Do not share this with anyone.';
+    expect(buildReport(analyzeText(text), null).level).toBe('danger');
+  });
+
+  it('still treats a real OTP message as safe', () => {
+    const text =
+      'Your OTP for Rs. 2,450.00 at DARAZ is 482913. Do not share this code with anyone.';
+    expect(buildReport(analyzeText(text), null).level).toBe('safe');
+  });
+});

@@ -10,9 +10,9 @@ import {
 } from './indicators.ts';
 
 describe('normalizeUrl', () => {
-  it('drops scheme, www and trailing slash, lower-cases the host', () => {
+  it('drops scheme, www, query string and trailing slash, lower-cases the host', () => {
     expect(normalizeUrl('https://www.Bit.ly/AbC/')).toBe('bit.ly/AbC');
-    expect(normalizeUrl('wa.me/94771234567?text=hi')).toBe('wa.me/94771234567?text=hi');
+    expect(normalizeUrl('wa.me/94771234567?text=hi')).toBe('wa.me/94771234567');
   });
 });
 
@@ -39,7 +39,31 @@ describe('reportableIndicators', () => {
       'Verify at http://login.boc-verify.top/x or bit.ly/3abcd, or WhatsApp wa.me/94771234567',
     );
     expect(i.domains).toEqual(['login.boc-verify.top']);
-    expect(i.urls).toEqual(['bit.ly/3abcd', 'wa.me/94771234567']);
+    expect(i.urls).toEqual(['bit.ly/3abcd']);
+  });
+
+  it('turns WhatsApp and Telegram chat links into phone numbers, never plain links', () => {
+    const i = reportableIndicators(
+      'Chat wa.me/94771234567 or https://api.whatsapp.com/send?phone=94761234567&text=hi or t.me/+94711234567',
+    );
+    expect(i.urls).toEqual([]);
+    expect(i.phones).toEqual(['+94771234567', '+94761234567', '+94711234567']);
+  });
+
+  it('never reports the real bank or government site a scammer pasted in', () => {
+    const i = reportableIndicators('Visit boc.lk/help or www.cbsl.gov.lk, then pay at evil.top/x');
+    expect(i.domains).toEqual(['evil.top']);
+  });
+
+  it('drops query strings, which can carry the recipient details', () => {
+    const i = reportableIndicators('Pay https://bit.ly/abc?ref=kamal&acct=1234 now');
+    expect(i.urls).toEqual(['bit.ly/abc']);
+  });
+
+  it('reports a look-alike host with non-English letters as an exact link', () => {
+    const i = reportableIndicators('Login at https://bоc-secure.top/login');
+    expect(i.domains).toEqual([]);
+    expect(i.urls).toEqual(['bоc-secure.top/login']);
   });
 
   it('collects Sri Lankan numbers as E.164, once each', () => {

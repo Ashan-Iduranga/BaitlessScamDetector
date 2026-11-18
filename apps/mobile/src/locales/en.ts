@@ -268,6 +268,7 @@ const en = {
       too_many_invites:
         'You already have 3 codes waiting. Use one of them, or wait until they expire.',
       too_many_protected: 'You already look after 10 people.',
+      too_many_attempts: 'Too many wrong codes. Please wait an hour, then try again.',
       offline: 'You are offline. Connect to the internet and try again.',
       failed: 'Something went wrong. Please try again.',
     },

@@ -14,7 +14,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { withSupabase } from '@supabase/server';
 import { z } from 'zod';
 
-import { checkRateLimit, geminiJson, json, withTimeout } from '../_shared/edge.ts';
+import { reserveRequest, geminiJson, json, withTimeout } from '../_shared/edge.ts';
 import { AiResult, Language, ScamCategory } from '../_shared/schema.ts';
 
 // Safe Browsing answers in well under a second.
@@ -53,8 +53,8 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
   if (!parsed.success) return json(400, { error: 'bad_request' });
   const { text, urls, language, lookup } = parsed.data;
 
-  const limited = await checkRateLimit(admin, userId);
-  if (limited) return limited;
+  const reserved = await reserveRequest(admin, userId, 'analyze');
+  if ('response' in reserved) return reserved.response;
 
   const warnings: string[] = [];
   const [unsafeUrls, ai, communityHits] = await Promise.all([
@@ -63,14 +63,15 @@ const handler = withSupabase({ auth: 'user' }, async (req, ctx) => {
     checkCommunity(admin, lookup, warnings),
   ]);
 
-  await admin.from('analyze_requests').insert({
-    user_id: userId,
-    kind: 'analyze',
-    url_count: urls.length,
-    used_ai: ai !== null,
-    used_safe_browsing: urls.length > 0 && !warnings.includes('safe_browsing_unavailable'),
-    latency_ms: Date.now() - started,
-  });
+  await admin
+    .from('analyze_requests')
+    .update({
+      url_count: urls.length,
+      used_ai: ai !== null,
+      used_safe_browsing: urls.length > 0 && !warnings.includes('safe_browsing_unavailable'),
+      latency_ms: Date.now() - started,
+    })
+    .eq('id', reserved.requestId);
 
   return json(200, { ai, unsafeUrls, communityHits, warnings });
 });
@@ -115,10 +116,11 @@ async function checkSafeBrowsing(urls: string[], warnings: string[]): Promise<st
   const withScheme = urls.map((u) => (/^[a-z]+:\/\//i.test(u) ? u : `http://${u}`));
   try {
     const res = await withTimeout(STEP_TIMEOUT_MS, (signal) =>
-      fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${key}`, {
+      // Key in a header, not the URL, so it cannot end up in request or error logs.
+      fetch('https://safebrowsing.googleapis.com/v4/threatMatches:find', {
         method: 'POST',
         signal,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({
           client: { clientId: 'baitless', clientVersion: '1.0.0' },
           threatInfo: {
@@ -140,7 +142,7 @@ async function checkSafeBrowsing(urls: string[], warnings: string[]): Promise<st
     const hits = new Set((body.matches ?? []).map((m) => m.threat.url));
     return urls.filter((_, i) => hits.has(withScheme[i]!));
   } catch (e) {
-    console.error('safe browsing failed', e);
+    console.error('safe browsing failed', e instanceof Error ? e.message.slice(0, 120) : 'unknown');
     warnings.push('safe_browsing_unavailable');
     return [];
   }
@@ -216,7 +218,7 @@ async function askGemini(
     if (!result.success) throw new Error('gemini returned an invalid shape');
     return result.data;
   } catch (e) {
-    console.error('gemini failed', e);
+    console.error('gemini failed', e instanceof Error ? e.message.slice(0, 120) : 'unknown');
     warnings.push('ai_unavailable');
     return null;
   }

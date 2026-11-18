@@ -1,3 +1,4 @@
+import type { InputType } from '@baitless/detector';
 import * as Clipboard from 'expo-clipboard';
 import { useShareIntentContext } from 'expo-share-intent';
 import { ClipboardText, Image as ImageIcon, LockSimple, ShieldCheck } from 'phosphor-react-native';
@@ -26,6 +27,8 @@ export default function ScanScreen() {
   const { t } = useTranslation();
   const [muted] = useCSSVariable(['--color-muted']) as (string | undefined)[];
   const [text, setText] = useState('');
+  // Where the text came from, saved with the scan (a screenshot read online needed consent).
+  const [source, setSource] = useState<InputType>('paste');
   const [notice, setNotice] = useState<string | null>(null);
   const [reading, setReading] = useState<'device' | 'online' | null>(null);
   // The last screenshot read on the phone, so people can retry it online if the text is wrong.
@@ -39,9 +42,11 @@ export default function ScanScreen() {
     if (!hasShareIntent) return;
     const shared = shareIntent.text ?? shareIntent.webUrl;
     const image = shareIntent.files?.find((f) => f.mimeType?.startsWith('image/'));
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (shared) setText(shared.slice(0, MAX_LENGTH));
-    else if (image) void readImage(image.path);
+    if (shared) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setText(shared.slice(0, MAX_LENGTH));
+      setSource('share');
+    } else if (image) void readImage(image.path);
     resetShareIntent();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasShareIntent]);
@@ -70,6 +75,7 @@ export default function ScanScreen() {
 
   function applyDeviceText(found: string, uri: string) {
     setText(found.slice(0, MAX_LENGTH));
+    setSource('screenshot');
     setDeviceReadImage(uri);
   }
 
@@ -94,9 +100,10 @@ export default function ScanScreen() {
     setReading('online');
     const result = await readImageOnline(uri);
     setReading(null);
-    if (result.ok && result.text.length >= MIN_READ_LENGTH)
+    if (result.ok && result.text.length >= MIN_READ_LENGTH) {
       setText(result.text.slice(0, MAX_LENGTH));
-    else setNotice(onlineNotice(result));
+      setSource('screenshot');
+    } else setNotice(onlineNotice(result));
   }
 
   function onlineNotice(result: OnlineReadResult): string {
@@ -117,8 +124,10 @@ export default function ScanScreen() {
     setNotice(null);
     setDeviceReadImage(null);
     const copied = await Clipboard.getStringAsync();
-    if (copied.trim()) setText(copied.slice(0, MAX_LENGTH));
-    else setNotice(t('scan.clipboardEmpty'));
+    if (copied.trim()) {
+      setText(copied.slice(0, MAX_LENGTH));
+      setSource('paste');
+    } else setNotice(t('scan.clipboardEmpty'));
   }
 
   async function onPickImage() {
@@ -143,6 +152,8 @@ export default function ScanScreen() {
           value={text}
           onChangeText={(v) => {
             setText(v);
+            // Editing keeps the source; starting again from an empty box is a paste.
+            if (!v.trim()) setSource('paste');
             setNotice(null);
             setDeviceReadImage(null);
           }}
@@ -196,7 +207,7 @@ export default function ScanScreen() {
         size="large"
         loading={scan.isPending}
         disabled={!canCheck}
-        onPress={() => scan.mutate({ text, inputType: 'paste' })}
+        onPress={() => scan.mutate({ text, inputType: source })}
       />
 
       <View className="flex-row items-start gap-3 rounded-md bg-surface-container p-4">

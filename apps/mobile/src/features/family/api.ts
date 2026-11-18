@@ -66,6 +66,7 @@ export type FamilyFailure =
   | 'too_many_guardians'
   | 'too_many_invites'
   | 'too_many_protected'
+  | 'too_many_attempts'
   | 'offline'
   | 'failed';
 
@@ -75,6 +76,7 @@ const KNOWN: FamilyFailure[] = [
   'too_many_guardians',
   'too_many_invites',
   'too_many_protected',
+  'too_many_attempts',
 ];
 
 export class FamilyError extends Error {
@@ -158,6 +160,8 @@ export async function acceptInvite(code: string, guardianName: string): Promise<
     p_guardian_name: guardianName.trim(),
   });
   if (error) throw toFamilyError(error);
+  // A wrong or expired code returns nothing (the server counts it towards a 10-per-hour limit).
+  if (data === null) throw new FamilyError('invite_not_found');
   setFlag(IS_GUARDIAN, true);
   return z.string().parse(data);
 }
