@@ -39,6 +39,12 @@ export type SmsGuardState = {
   blocked: boolean;
   /** Last request was refused (but can be asked again). */
   denied: boolean;
+  /**
+   * The SMS permission itself was refused on Android 13+. An APK installed from Drive, WhatsApp or
+   * a file manager may not even show the dialog until "Allow restricted settings" is turned on in
+   * App info, so the screen shows those steps.
+   */
+  smsRestricted: boolean;
   setEnabled: (on: boolean) => Promise<void>;
 };
 
@@ -47,6 +53,7 @@ export function useSmsGuard(): SmsGuardState {
   const [busy, setBusy] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [denied, setDenied] = useState(false);
+  const [smsRestricted, setSmsRestricted] = useState(false);
 
   // People can take a permission away in the system settings: switch off to match.
   useEffect(() => {
@@ -72,10 +79,16 @@ export function useSmsGuard(): SmsGuardState {
     setBusy(true);
     requesting = true;
     try {
-      const results = Object.values(await PermissionsAndroid.requestMultiple(neededPermissions()));
+      const answers = await PermissionsAndroid.requestMultiple(neededPermissions());
+      const results = Object.values(answers);
       const granted = results.every((r) => r === PermissionsAndroid.RESULTS.GRANTED);
       setBlocked(results.includes(PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN));
       setDenied(!granted);
+      setSmsRestricted(
+        Number(Platform.Version) >= 33 &&
+          answers[PermissionsAndroid.PERMISSIONS.RECEIVE_SMS] !==
+            PermissionsAndroid.RESULTS.GRANTED,
+      );
       SmsGuard.setEnabled(granted);
       setEnabledState(granted);
     } finally {
@@ -84,5 +97,13 @@ export function useSmsGuard(): SmsGuardState {
     }
   }, []);
 
-  return { available: SmsGuard !== null, enabled, busy, blocked, denied, setEnabled };
+  return {
+    available: SmsGuard !== null,
+    enabled,
+    busy,
+    blocked,
+    denied,
+    smsRestricted,
+    setEnabled,
+  };
 }

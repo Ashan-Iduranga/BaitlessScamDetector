@@ -8,6 +8,7 @@
     "scheme": "baitless",
     "userInterfaceStyle": "automatic",
     "android": {
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#2F4BD8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,6 +39,7 @@
       "./plugins/with-windows-cmake",
       "./plugins/with-release-signing",
       "./plugins/with-proguard-rules",
+      "./plugins/with-abi-splits",
       "expo-sqlite",
       "expo-localization",
       [

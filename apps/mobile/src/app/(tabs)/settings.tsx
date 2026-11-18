@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import {
   CaretRight,
+  EnvelopeSimple,
   GearSix,
   LockSimple,
   ShieldCheck,
@@ -18,6 +19,17 @@ import { Text } from '@/components/ui/text';
 import { useClearHistory } from '@/features/history/hooks';
 import { useSmsGuard } from '@/features/sms-guard/use-sms-guard';
 import { LANGUAGES, setLanguage } from '@/lib/i18n';
+
+// Set in .env (see .env.example). The Contact line is hidden until there is an address.
+const CONTACT_EMAIL = process.env.EXPO_PUBLIC_CONTACT_EMAIL?.trim() || null;
+
+// Android's own menu names are quoted in English: most phones in Sri Lanka show the system in English.
+const RESTRICTED_STEPS = [
+  'smsGuard.restricted.step1',
+  'smsGuard.restricted.step2',
+  'smsGuard.restricted.step3',
+  'smsGuard.restricted.step4',
+] as const;
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -97,7 +109,28 @@ export default function SettingsScreen() {
             disabled={smsGuard.busy}
             onChange={(on) => void smsGuard.setEnabled(on)}
           />
-          {smsGuard.denied ? (
+          {smsGuard.smsRestricted ? (
+            <View accessibilityLiveRegion="polite" className="gap-3">
+              <Text className="text-danger">{t('smsGuard.restricted.title')}</Text>
+              {RESTRICTED_STEPS.map((key, i) => (
+                <View key={key} className="flex-row gap-2">
+                  <Text weight="semibold" className="w-5 text-foreground">
+                    {i + 1}.
+                  </Text>
+                  <Text className="flex-1 text-foreground">{t(key)}</Text>
+                </View>
+              ))}
+              <Text variant="label" weight="regular" className="text-muted">
+                {t('smsGuard.restricted.note')}
+              </Text>
+              <Button
+                title={t('smsGuard.openSettings')}
+                icon={GearSix}
+                variant="outlined"
+                onPress={() => void Linking.openSettings()}
+              />
+            </View>
+          ) : smsGuard.denied ? (
             <View accessibilityLiveRegion="polite" className="gap-3">
               <Text className="text-danger">
                 {t(smsGuard.blocked ? 'smsGuard.blocked' : 'smsGuard.denied')}
@@ -124,7 +157,24 @@ export default function SettingsScreen() {
           <Text variant="title">{t('settings.privacyTitle')}</Text>
         </View>
         <Text className="text-muted">{t('settings.privacyBody')}</Text>
+        <Text className="text-muted">{t('settings.aiNotice')}</Text>
+        <Text className="text-muted">{t('settings.notOfficial')}</Text>
       </View>
+
+      {CONTACT_EMAIL ? (
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => void Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=Baitless`)}
+          className="flex-row items-center gap-3 rounded-md border border-outline-variant bg-surface p-4 active:bg-surface-container-high">
+          <EnvelopeSimple size={24} color={primary} />
+          <View className="flex-1 gap-1">
+            <Text variant="title">{t('settings.contactTitle')}</Text>
+            <Text className="text-muted">
+              {t('settings.contactBody', { email: CONTACT_EMAIL })}
+            </Text>
+          </View>
+        </Pressable>
+      ) : null}
 
       <Button
         title={t('settings.deleteHistory')}

@@ -24,7 +24,7 @@ const en = {
     clipboardEmpty: 'There is nothing copied yet. Copy the message first, then tap Paste.',
     online: {
       title: 'Read Sinhala or Tamil text?',
-      body: 'Your phone can only read English letters in pictures. To read Sinhala or Tamil, the picture is sent to our online reader (Google Gemini). Personal details in the picture are NOT hidden, so crop out anything private first.',
+      body: 'Your phone can only read English letters in pictures. To read Sinhala or Tamil, the picture is sent to our online reader (Google Gemini, free service). Personal details in the picture are NOT hidden, and Google may keep and review it to improve its AI, so crop out anything private first.',
       send: 'Send picture',
       useLocal: 'English only',
       cancel: 'Cancel',
@@ -220,6 +220,14 @@ const en = {
     blocked:
       'Permission is turned off for Baitless. Allow SMS and Notifications in the app settings, then come back.',
     openSettings: 'Open app settings',
+    restricted: {
+      title: 'Android blocked the SMS permission. To allow it:',
+      step1: 'Tap "Open app settings" below.',
+      step2: 'Tap ⋮ (top right), then "Allow restricted settings", and confirm with your PIN.',
+      step3: 'Go to Permissions, then SMS, and choose Allow. Allow Notifications too.',
+      step4: 'Come back here and turn SMS Guard on again.',
+      note: 'Android asks this for apps installed from outside the Play Store. If you do not see "Allow restricted settings", go straight to Permissions.',
+    },
     notify: {
       channel: 'Scam warnings',
       title: { danger: 'Likely scam SMS', caution: 'Suspicious SMS', safe: 'SMS checked' },
@@ -407,6 +415,12 @@ const en = {
     privacyTitle: 'Your privacy',
     privacyBody:
       'Your history stays on this phone. When you check a message, personal details are hidden first, then the message is sent to our server for an AI review and a link safety check. We do not store the message. Sinhala or Tamil screenshots are sent as they are, and only when you agree.',
+    aiNotice:
+      'The AI review uses Google Gemini’s free service. Google may keep what is sent and have people review it to improve its AI. Personal details are hidden first, but screenshots are sent as they are.',
+    notOfficial:
+      'Baitless is an independent app. It is not run by Sri Lanka CERT, the police or any bank.',
+    contactTitle: 'Contact',
+    contactBody: 'Questions or a problem with Baitless? Email {{email}}',
     deleteHistory: 'Delete history',
   },
 } as const;
