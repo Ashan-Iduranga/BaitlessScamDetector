@@ -2,8 +2,8 @@
 
 An AI-assisted scam message detector for Sri Lankan mobile users (Sinhala, Tamil, English and
 Singlish). It checks a suspicious SMS, WhatsApp message, link, phone number or screenshot and
-explains _why_ it looks like a scam. Built as a practice project from
-`Proposal_Baitless_Scam_Detector.docx`. Android only, installed by sideloading (not on Google Play).
+explains _why_ it looks like a scam. Built as a practice project. Android only, installed by
+sideloading (not on Google Play).
 
 ## Features
 
@@ -33,7 +33,6 @@ apps/mobile/modules/sms-guard Kotlin module: SMS receiver, headless task, notifi
 packages/detector/           Pure TypeScript detection engine + shared Zod schemas
 supabase/                    Config, migrations and Edge Functions (analyze, read-image)
 data/                        Labelled dataset + validator
-docs/                        Design system, key setup, privacy, translation review
 ```
 
 ## Getting started
@@ -41,8 +40,12 @@ docs/                        Design system, key setup, privacy, translation revi
 1. `npm install`
 2. Copy `apps/mobile/.env.example` to `apps/mobile/.env` and fill in the Supabase URL and
    publishable key.
-3. For the online checks, follow [docs/setup-keys.md](docs/setup-keys.md) (free; the API keys go
-   into Supabase, never into the app).
+3. Optional, for the online checks (all free, no billing account):
+   - In Supabase, turn on **Authentication > Providers > Allow anonymous sign-ins**.
+   - Create a Gemini API key at <https://aistudio.google.com/apikey>, and a Google Safe Browsing
+     API key in Google Cloud Console (enable the Safe Browsing API first).
+   - Save them as Supabase Edge Function secrets named `GEMINI_API_KEY` and
+     `SAFE_BROWSING_API_KEY`. The keys live only in Supabase, never in the app or in git.
 4. Run it:
 
 ```bash
@@ -50,7 +53,25 @@ npm run android        # builds a dev client and runs it on an emulator/device
 npm run mobile         # starts Metro only
 ```
 
-To build an APK for real phones, see [docs/release.md](docs/release.md).
+Without the keys, the app still works offline with the on-device rules.
+
+## Release APK
+
+Release builds are signed with your own upload key, kept outside the repo. Put its path and
+passwords in your user `~/.gradle/gradle.properties` as `BAITLESS_UPLOAD_STORE_FILE`,
+`BAITLESS_UPLOAD_STORE_PASSWORD`, `BAITLESS_UPLOAD_KEY_ALIAS` and `BAITLESS_UPLOAD_KEY_PASSWORD`
+(read by `apps/mobile/plugins/with-release-signing.js`). Then:
+
+```bash
+cd apps/mobile
+npx expo prebuild --platform android --no-install --clean
+cd android
+./gradlew assembleRelease
+```
+
+The APKs are in `apps/mobile/android/app/build/outputs/apk/release/`. Share
+`app-arm64-v8a-release.apk`. Raise `android.versionCode` in `apps/mobile/app.json` for every new
+APK, and always sign with the same key.
 
 ## Checks
 
@@ -63,14 +84,11 @@ npm run data:check
 npm run format:check
 ```
 
-## Documentation
+## Privacy
 
-- [docs/privacy.md](docs/privacy.md): what leaves the phone, what the server stores, and why.
-- [docs/setup-keys.md](docs/setup-keys.md): switch on Gemini and Safe Browsing.
-- [docs/design-system.md](docs/design-system.md): colours, type and component rules.
-- [docs/translation-review.md](docs/translation-review.md): Sinhala and Tamil text that needs a
-  native speaker.
-- [docs/release.md](docs/release.md): build and install a release APK.
+Personal details are hidden before a message is sent online. SMS Guard checks SMS on the phone
+only and never uploads them. History stays on the phone. Community reports store phone numbers
+hashed, and Family Guardian alerts carry a summary, never the message.
 
 ## Roadmap
 
