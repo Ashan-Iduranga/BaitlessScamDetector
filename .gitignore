@@ -12,3 +12,7 @@ supabase/.temp
 
 # Local notes that may hold secrets
 docs/Keys.txt
+
+# Kept local only
+docs/
+Proposal_Baitless_Scam_Detector.docx
